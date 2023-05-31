@@ -1,0 +1,42 @@
+library('shiny')
+library('maps')
+library('mapproj')
+source("C:/Users/ehial/Documents/practice-r/Lesson4/census-app/helpers.R")
+
+
+ui <- fluidPage(
+  titlePanel("censusVis"),
+  
+  sidebarLayout(
+    sidebarPanel(
+      helpText("Create demographic maps with information 
+               from the 2010 US Census."),
+      
+      selectInput("var",
+                  label = "Choose a variable to display",
+                  choices = c("Percent White", "Percent Black",
+                              "Percent Hispanic", "Percent Asian"),
+                  selected = "Percent White"),
+      
+      sliderInput("range",
+                  label = "Range of Interest:",
+                  min = 0, max = 100, value = c(0, 100))
+    ),
+    
+    mainPanel(plotOutput("map"))
+  )
+)
+
+server <- function(input, output) {
+  
+  output$map <- renderPlot({
+    data <- switch(input$var,
+                   "Percent White" = Counties$white,
+                   "Percent Black" = Counties$black,
+                   "Percent Hispanic" = Counties$hispanic,
+                   "Percent Asian" = Counties$asian)
+    percent_map(var = data, color = "darkgreen", legend.title = "Census App", max = 100, min = 0)
+  })
+}
+
+shinyApp(ui = ui, server = server)
